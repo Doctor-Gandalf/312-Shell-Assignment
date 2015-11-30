@@ -1,0 +1,8 @@
+cd <dir>                Changes the current directory to <dir>. If no argument, then report current directory
+clr                     Clear the screen
+dir <dir>               List the contents of directory <dir>
+environ                 List all the environment strings
+echo <comment>          Display <comment> on the display followed by a new line
+help                    Display the user manual
+pause                   Pause operation until the 'Enter' key is pressed
+quit                    Quits the shell
