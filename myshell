@@ -6,7 +6,6 @@ import os
 # TODO implement console_help.
 # TODO investigate program invocation forking in case it isn't already covered (subprocess.popen()?).
 # TODO add support for taking commands from file.
-# Pushing to github
 
 
 def change_directory(command):
@@ -44,8 +43,18 @@ def directory(command):
     :param command: The command to execute, including the directory invocation.
     :return: True if function finished successfully, false if it was unable to complete.
     """
-    command[0] = 'ls'
-    subprocess.call(' '.join(command), shell=True)
+    if len(command) is not 1:
+        location = command[1]
+    else:
+        location = os.getcwd()
+
+    if not os.path.isdir(location):
+        print "Could not find directory or is a file"
+    else:
+        for item in os.listdir(location):
+            if not item.startswith('.'):
+                print item
+
     return True
 
 
@@ -54,7 +63,8 @@ def environment():
 
     :return: True if function finished successfully, false if it was unable to complete.
     """
-    subprocess.call(['env'])
+    for key, value in os.environ.items():
+        print key + ': ' + value
     return True
 
 
@@ -64,7 +74,7 @@ def echo(command):
     :param command: The command to execute, including the echo invocation.
     :return: True if function finished successfully, false if it was unable to complete.
     """
-    subprocess.call(command)
+    print ' '.join(command[1:])
     return True
 
 
