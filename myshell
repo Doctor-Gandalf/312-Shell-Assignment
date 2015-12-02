@@ -83,7 +83,7 @@ def console_help():
 
     :return: True if function finished successfully, false if it was unable to complete.
     """
-    # TODO implement.
+    subprocess.call(["more", './readme'])
     return True
 
 
