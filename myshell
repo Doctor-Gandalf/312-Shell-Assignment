@@ -3,6 +3,7 @@ import subprocess
 import socket
 import sys
 import os
+
 # TODO investigate program invocation forking in case it isn't already covered (subprocess.popen()?).
 # TODO add support for taking commands from file.
 readme_location = os.path.abspath("./readme")
@@ -96,6 +97,26 @@ def pause():
     return True
 
 
+def read_file(path):
+    """Read the lines from a file and send them to the control_commands func
+
+    :param path: a file path or file name
+    :return: True if function finished successfully, false if it was unable to complete.
+    Also false if python does not have permission to read files
+    """
+    try:
+        with open(path, 'r') as file_obj:
+            data = file_obj.read().splitlines()
+    except OSError as e:
+        print e + " " + path
+    for ln in data:
+        if type(ln) is list:
+            control_commands(ln)
+        else:
+            control_commands(ln.split())
+    return True
+
+
 def default(command):
     """Execute a generic command.
 
@@ -133,8 +154,11 @@ def control_commands(command):
         return pause()
     elif 'quit' in command and command.index('quit') is 0:
         return False
+    elif (command[0].startswith('./') or command[0].startswith('/')) and os.path.exists(command[0]):
+        return read_file(os.path.abspath(command[0]))
     else:
         return default(command)
+
 
 if __name__ == "__main__":
     try:
