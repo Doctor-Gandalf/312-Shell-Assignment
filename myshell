@@ -3,9 +3,9 @@ import subprocess
 import socket
 import sys
 import os
-# TODO implement console_help.
 # TODO investigate program invocation forking in case it isn't already covered (subprocess.popen()?).
 # TODO add support for taking commands from file.
+readme_location = os.path.abspath("./readme")
 
 
 def change_directory(command):
@@ -83,7 +83,7 @@ def console_help():
 
     :return: True if function finished successfully, false if it was unable to complete.
     """
-    subprocess.call(["more", './readme'])
+    subprocess.call(["more", readme_location])
     return True
 
 
