@@ -1,0 +1,11 @@
+#!myshell
+
+dir
+more ./testfile
+cd /
+dir
+environ
+pause
+clear
+echo new line
+help
