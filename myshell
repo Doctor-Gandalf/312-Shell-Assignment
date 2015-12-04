@@ -3,10 +3,8 @@ import subprocess
 import socket
 import sys
 import os
-
-# TODO investigate program invocation forking in case it isn't already covered (subprocess.popen()?).
-# TODO add support for taking commands from file.
 readme_location = os.path.abspath("./readme")
+myshell_location = os.path.abspath("./myshell")
 
 
 def change_directory(command):
@@ -17,8 +15,6 @@ def change_directory(command):
     """
     if len(command) > 1:
         try:
-            # TODO fix chdir adverse reaction to ~.
-            # TODO investigate PWD environment variable.
             # Can't use subprocess.call here because it would only
             # change the child's directory, not the parent's.
             os.chdir(command[1])
@@ -65,7 +61,9 @@ def environment():
     :return: True if function finished successfully, false if it was unable to complete.
     """
     for key, value in os.environ.items():
-        print key + ': ' + value
+        if key is not "SHELL":
+            print key + '= ' + value
+    print "SHELL= " + myshell_location
     return True
 
 
@@ -97,24 +95,28 @@ def pause():
     return True
 
 
-def read_file(path):
+def read_file(command):
     """Read the lines from a file and send them to the control_commands func
 
-    :param path: a file path or file name
+    :param command: a command to open and read a file
     :return: True if function finished successfully, false if it was unable to complete.
-    Also false if python does not have permission to read files
+             Also True if python does not have permission to read files
     """
+    path = os.path.abspath(command[0])
     try:
-        with open(path, 'r') as file_obj:
-            data = file_obj.read().splitlines()
+        with open(path, 'r') as internal_read_file:
+            first_line = internal_read_file.readline()
+            if first_line.startswith('#!myshell'):
+                data = [first_line] + internal_read_file.read().splitlines()
+                for ln in data:
+                    if ln is not '' and not ln.startswith('\#'):
+                        control_commands(ln.split())
+                return True
+            else:
+                return default(command)
     except OSError as e:
         print e + " " + path
-    for ln in data:
-        if type(ln) is list:
-            control_commands(ln)
-        else:
-            control_commands(ln.split())
-    return True
+        return True
 
 
 def default(command):
@@ -155,14 +157,13 @@ def control_commands(command):
     elif 'quit' in command and command.index('quit') is 0:
         return False
     elif (command[0].startswith('./') or command[0].startswith('/')) and os.path.exists(command[0]):
-        return read_file(os.path.abspath(command[0]))
+        return read_file(command)
     else:
         return default(command)
 
 
 if __name__ == "__main__":
     try:
-        # TODO check with Prof Cardwell if he wants this to continue running after executing command line.
         # Handles command line arguments, then ends program.
         line = sys.argv[1:]
         running = control_commands(line)
@@ -177,4 +178,5 @@ if __name__ == "__main__":
 
             # Can change raw_input's argument to simplify visuals.
             line = raw_input(info).split()
-            running = control_commands(line)
+            if line:
+                running = control_commands(line)
