@@ -61,7 +61,7 @@ def environment():
     :return: True if function finished successfully, false if it was unable to complete.
     """
     for key, value in os.environ.items():
-        if key is not "SHELL":
+        if not key.startswith("SHELL"):
             print key + '= ' + value
     print "SHELL= " + myshell_location
     return True
@@ -108,9 +108,11 @@ def read_file(command):
             first_line = internal_read_file.readline()
             if first_line.startswith('#!myshell'):
                 data = [first_line] + internal_read_file.read().splitlines()
+                os.environ["PARENT"] = str(myshell_location)
                 for ln in data:
                     if ln is not '' and not ln.startswith('\#'):
                         control_commands(ln.split())
+                os.environ.pop("PARENT")
                 return True
             else:
                 return default(command)
@@ -126,7 +128,9 @@ def default(command):
     :return: True if function finished successfully, false if it was unable to complete.
     """
     try:
+        os.environ["PARENT"] = str(myshell_location)
         subprocess.call(command)
+        os.environ.pop("PARENT")
     except OSError as e:
         print e
     return True
