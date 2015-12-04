@@ -112,7 +112,10 @@ def read_file(command):
                 for ln in data:
                     if ln is not '' and not ln.startswith('\#'):
                         control_commands(ln.split())
-                os.environ.pop("PARENT")
+                try:
+                    os.environ.pop("PARENT")
+                except:
+                    pass
                 return True
             else:
                 return default(command)
@@ -130,7 +133,10 @@ def default(command):
     try:
         os.environ["PARENT"] = str(myshell_location)
         subprocess.call(command)
-        os.environ.pop("PARENT")
+        try:
+            os.environ.pop("PARENT")
+        except:
+            pass
     except OSError as e:
         print e
     return True
